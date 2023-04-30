@@ -1,26 +1,41 @@
 import openai
 
 # Load your API key from an environment variable or secret management service
-openai.api_key = "sk-xxxx"
+openai.api_key = "sk-O"
 
 
-# Initialize conversation flag
-end_conversation = False
+# Set the initial prompt
+prompt = "Hello."
 
-while not end_conversation:
-    # Prompt the user for input
-    prompt = input("What would you like to ask OpenAI? ")
-
+# Loop to keep the conversation going
+while True:
     # Call OpenAI's API to generate a response
     response = openai.Completion.create(
-        engine="text-davinci-003", prompt=prompt, max_tokens=1024, n=1, stop=None, temperature=0.9)
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5
+    )
 
     # Extract the response from the API call
     answer = response.choices[0].text.strip()
 
     # Display the response to the user
-    print("OpenAI's response: \n" + answer)
+    print("OpenAI's response: " + answer)
 
+    # Update the prompt for the next iteration
+    prompt = input()
+
+    # Check if the user wants to end the conversation
+    if prompt.lower() in ["exit", "quit", "bye", "goodbye"]:
+        break
+
+# Initialize conversation-ending flag
+end_conversation = False
+
+while not end_conversation:
     # Ask the user if they have another question
     another_question = input("Do you have another question? (y/n) ")
 
@@ -30,3 +45,32 @@ while not end_conversation:
 
         if end_chat.lower() == "y":
             end_conversation = True
+        elif end_chat.lower() == "n":
+            # User changed their mind about ending the conversation
+            pass
+        else:
+            print("Sorry, I didn't understand that. Please enter 'y' for yes or 'n' for no.")
+
+    elif another_question.lower() == "y":
+        # User has another question, so prompt for it
+        prompt = input("What's your question? ")
+
+        # Call OpenAI's API to generate a response
+        response = openai.Completion.create(
+            engine="text-davinci-003", prompt=prompt, max_tokens=1024, n=1, stop=None, temperature=0.9)
+
+        # Extract the response from the API call
+        answer = response.choices[0].text.strip()
+
+        # Display the response to the user
+        print("OpenAI's response: \n" + answer)
+
+        # Update the prompt for the next iteration
+        prompt = input()
+
+        # Check if the user wants to end the conversation
+        if prompt.lower() in ["exit", "quit", "bye", "goodbye", "ok", "thanks"]:
+            break
+
+    else:
+        print("Sorry, I didn't understand that. Please enter 'y' for yes or 'n' for no.")
